@@ -21,8 +21,8 @@ jobs:
         run: clang-format -i helloworld.cpp
       - name: Commit formatted code
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config --local user.email "haleyhansen6534@gmail.com"
+          git config --local user.name "haley.hansen"
           git commit -a -m "Format C++ code using clang-format"
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
