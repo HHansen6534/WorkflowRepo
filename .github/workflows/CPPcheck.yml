@@ -1,24 +1,20 @@
-name: C++ Format Automater 
+name: C++ Format Automater
 
-on: 
-  pull_request:
+on:
+  push:
     branches:
       - main
-      - master
-  push: 
-    branches:
-      - main
-      - master
-      
-jobs: 
-  format: 
-    runs-on: ubuntu-latest 
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Install clang-format
         run: sudo apt-get install -y clang-format
       - name: Run clang-format
-        run: clang-format -i helloworld.cpp
+        run: |
+          find . -iname "*.cpp" -print0 | xargs -0 clang-format -i
       - name: Commit formatted code
         run: |
           git config --local user.email "haleyhansen6534@gmail.com"
@@ -26,8 +22,5 @@ jobs:
           git commit -a -m "Format C++ code using clang-format"
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
-        with: 
+        with:
           github_token: ${{ secrets.GH_TOKEN }}
-          
-  
-
