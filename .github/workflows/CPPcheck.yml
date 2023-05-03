@@ -18,8 +18,8 @@ jobs:
       - name: Install clang-format
         run: sudo apt-get install -y clang-format
       - name: Run clang-format
-        run: clang-format -i test.cpp
-      - name: COmmit formatted code
+        run: clang-format -i helloworld.cpp
+      - name: Commit formatted code
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
