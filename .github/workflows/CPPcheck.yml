@@ -3,31 +3,24 @@ name: C++ Format Automater
 on:
   push:
     branches:
-      - master
-  pull_request:
+      - main
 
 jobs:
-  build:
+  format:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up ClangFormat
+      - uses: actions/checkout@v2
+      - name: Install clang-format
         run: sudo apt-get install -y clang-format
-
-      - name: Show code formatting changes
+      - name: Run clang-format
         run: |
-          git diff --name-only HEAD^ HEAD | grep '\.cpp$\|\.h$' | xargs clang-format -style=file --output=diff
-          git add .
-          git config user.name "HHansen6534"
-          git config user.email "haleyhansen6534@gmail.com"
-          git commit -m "Format code with ClangFormat"
-          
+          find . -iname "*.cpp" -print0 | xargs -0 clang-format -i
+      - name: Commit formatted code
+        run: |
+          git config --local user.email "haleyhansen6534@gmail.com"
+          git config --local user.name "HHansen6534"
+          git commit -a -m "Format C++ code using clang-format"
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
           github_token: ${{ secrets.GH_TOKEN }}
-          branch: master
-          force: true
