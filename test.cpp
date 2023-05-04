@@ -1,7 +1,9 @@
+
 using namespace std;
 
 #include <iostream> 
 
-int main(){
+int main()
+{
   cout << "Hello world!";
 }
