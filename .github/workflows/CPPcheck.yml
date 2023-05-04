@@ -1,40 +1,28 @@
-name: C++ Format Automater 
+name: CI
 
-on: 
+on:
+  push:
+    branches:
+      - master
   pull_request:
-    branches:
-      - main
-      - master
-  push: 
-    branches:
-      - main
-      - master
-      
-jobs: 
-  format: 
-    runs-on: ubuntu-latest 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Install clang-format
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up ClangFormat
         run: sudo apt-get install -y clang-format
-      - name: Run clang-format
-        run: |
-          for file in $(find . -name '*.cpp' -o -name '*.h'); do
-            clang-format -i $file
-            if ! git diff --quiet $file; then
-              echo "$file is not formatted correctly."
-              exit 1
-            fi
-          done
-      - name: Commit formatted code
-        run: |
-          git config --local user.email "HaleyHansen6534@gmail.com"
-          git config --local user.name "HHansen6534"
-          git commit -a -m "Format C++ code using clang-format"
+
+      - name: Show code formatting changes
+        run: git diff --name-only HEAD^ HEAD | grep '\.cpp$\|\.h$' | xargs clang-format -style=file --output=diff
+
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
-        with: 
+        with:
           github_token: ${{ secrets.GH_TOKEN }}
-          
-  
-
+          branch: master
+          force: true
