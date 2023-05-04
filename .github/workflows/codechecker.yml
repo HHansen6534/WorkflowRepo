@@ -1,28 +1,29 @@
-name: C++ Format Checker
+name: C++ Format Automater
 
 on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
-  check-format:
+  format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Install clang-format
         run: sudo apt-get install -y clang-format
-      - name: Check C++ formatting
+      - name: Run clang-format
         run: |
-          if find . -iname "*.cpp" ! -path "./.git/*" -exec clang-format -style=file -output-replacements-xml {} \; | grep "<replacement " >/dev/null; then exit 1; fi
-        shell: bash
-      - name: Set up Git user
+          find . -iname "*.cpp" -print0 | xargs -0 clang-format -i
+      - name: Show changed code
+        run: |
+          git diff
+      - name: Commit formatted code
         run: |
           git config --local user.email "haleyhansen6534@gmail.com"
           git config --local user.name "HHansen6534"
-        shell: bash
-      - name: Push formatting changes
+          git commit -a -m "Format C++ code using clang-format"
+      - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
           github_token: ${{ secrets.GH_TOKEN }}
