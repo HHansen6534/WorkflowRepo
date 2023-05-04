@@ -1,4 +1,4 @@
-name: C++ Code Formatting Checker
+name: C++ Format Checker
 
 on:
   push:
@@ -7,44 +7,22 @@ on:
   pull_request:
 
 jobs:
-  check-formatting:
+  check-format:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
+      - uses: actions/checkout@v2
       - name: Install clang-format
         run: sudo apt-get install -y clang-format
-
-      - name: Check code formatting
+      - name: Check C++ formatting
         run: |
-          if [ -n "$(find . -name '*.cpp' -o -name '*.h' | xargs clang-format -style=file -output-replacements-xml | grep "<replacement " )" ]; then
-            echo "The following files are not formatted correctly:"
-            find . -name '*.cpp' -o -name '*.h' | xargs clang-format -style=file -output-replacements-xml | grep "<replacement "
-            echo ""
-            echo "To fix the formatting issues, run the following command:"
-            echo ""
-            echo "clang-format -i -style=file <filename>"
-            echo ""
-            exit 1
-          else
-            echo "All C++ files are formatted correctly."
-          fi
-
-      - name: Set up Git
+          if find . -iname "*.cpp" ! -path "./.git/*" -exec clang-format -style=file -output-replacements-xml {} \; | grep "<replacement " >/dev/null; then exit 1; fi
+        shell: bash
+      - name: Set up Git user
         run: |
-          git config --global user.email "haleyhansen6534@gmail.com"
-          git config --global user.name "HHansen6534"
-
-      - name: Commit formatting changes
-        run: |
-          git add -u
-          git diff-index --quiet HEAD || git commit -m "Format C++ code using clang-format"
-
-      - name: Push changes
+          git config --local user.email "haleyhansen6534@gmail.com"
+          git config --local user.name "HHansen6534"
+        shell: bash
+      - name: Push formatting changes
         uses: ad-m/github-push-action@v0.6.0
         with:
           github_token: ${{ secrets.GH_TOKEN }}
-          branch: ${{ github.ref }}
-          force: true
-
