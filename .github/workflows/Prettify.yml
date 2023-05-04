@@ -1,0 +1,28 @@
+name: Prettify code on push
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  prettify:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: npm install prettier
+
+    - name: Show prettier changes
+      run: git diff --name-only --diff-filter=d --cached | grep "\\.js$" | xargs npx prettier --check --write
+
+    - name: Commit prettified changes
+      run: |
+        git config --local user.email "HaleyHansen6534@gmail.com"
+        git config --local user.name "HHansen6534"
+        git add .
+        git commit -m "Prettify code"
+        git push origin HEAD:$GITHUB_REF
