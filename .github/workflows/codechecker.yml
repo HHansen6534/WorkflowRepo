@@ -1,0 +1,26 @@
+name: C++ Formatting Checker
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install clang-format
+        run: sudo apt-get install -y clang-format
+      - name: Check code formatting
+        run: |
+          git diff --name-only HEAD^ HEAD | grep '\.cpp$\|\.h$' | xargs clang-format -style=file -output-replacements-xml | grep -c '<replacement ' > /tmp/formatting_error
+          if [ $(cat /tmp/formatting_error) -eq 0 ]; then
+            echo "Code formatted correctly!"
+          else
+            echo "Code not formatted correctly!"
+            echo "Here are the suggested formatting changes:"
+            git diff --no-color --name-only HEAD^ HEAD | grep '\.cpp$\|\.h$' | xargs clang-format -style=file -output-replacements-xml | grep -E 'file=".*" offset="[0-9]+" length="[0-9]+" replacement=".*"' | sed -E 's/.*file="(.*)" offset="([0-9]+)" length="([0-9]+)" replacement="(.*)"/\1:\2:\3:\4/' | awk -F: '{print $1":"$2+1":"$2+$3+1": error: code not formatted correctly"}'
+            exit 1
+          fi
