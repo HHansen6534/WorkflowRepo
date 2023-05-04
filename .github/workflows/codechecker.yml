@@ -1,4 +1,4 @@
-name: C++ Formatting Checker
+name: C++ Code Formatting Checker
 
 on:
   push:
@@ -7,20 +7,44 @@ on:
   pull_request:
 
 jobs:
-  format-check:
+  check-formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Install clang-format
         run: sudo apt-get install -y clang-format
+
       - name: Check code formatting
         run: |
-          git diff --name-only HEAD^ HEAD | grep '\.cpp$\|\.h$' | xargs clang-format -style=file -output-replacements-xml | grep -c '<replacement ' > /tmp/formatting_error
-          if [ $(cat /tmp/formatting_error) -eq 0 ]; then
-            echo "Code formatted correctly!"
-          else
-            echo "Code not formatted correctly!"
-            echo "Here are the suggested formatting changes:"
-            git diff --no-color --name-only HEAD^ HEAD | grep '\.cpp$\|\.h$' | xargs clang-format -style=file -output-replacements-xml | grep -E 'file=".*" offset="[0-9]+" length="[0-9]+" replacement=".*"' | sed -E 's/.*file="(.*)" offset="([0-9]+)" length="([0-9]+)" replacement="(.*)"/\1:\2:\3:\4/' | awk -F: '{print $1":"$2+1":"$2+$3+1": error: code not formatted correctly"}'
+          if [ -n "$(find . -name '*.cpp' -o -name '*.h' | xargs clang-format -style=file -output-replacements-xml | grep "<replacement " )" ]; then
+            echo "The following files are not formatted correctly:"
+            find . -name '*.cpp' -o -name '*.h' | xargs clang-format -style=file -output-replacements-xml | grep "<replacement "
+            echo ""
+            echo "To fix the formatting issues, run the following command:"
+            echo ""
+            echo "clang-format -i -style=file <filename>"
+            echo ""
             exit 1
+          else
+            echo "All C++ files are formatted correctly."
           fi
+
+      - name: Set up Git
+        run: |
+          git config --global user.email "haleyhansen6534@gmail.com"
+          git config --global user.name "HHansen6534"
+
+      - name: Commit formatting changes
+        run: |
+          git add -u
+          git diff-index --quiet HEAD || git commit -m "Format C++ code using clang-format"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          branch: ${{ github.ref }}
+          force: true
+
