@@ -24,6 +24,8 @@ jobs:
           git config --local user.email "haleyhansen6534@gmail.com"
           git config --local user.name "HHansen6534"
           git commit -a -m "Format C++ code using clang-format"
+      - name: Checkout main branch
+        run: git checkout main
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
