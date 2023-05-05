@@ -1,24 +1,20 @@
 #include <iostream>
 
-using namespace std; 
+using namespace std;
 
 int main() {
 
-int total;
-cout << "what is the total price you want to calculate?" << endl;
+  int total;
+  cout << "what is the total price you want to calculate?" << endl;
 
-cin >> total >> endl;
+  cin >> total >> endl;
 
+  int tax;
+  int finaltotal;
 
-int tax;
-int finaltotal;
+  tax = total * 0.085;
 
-tax = total * 0.085;
+  finaltotal = total + tax;
 
-finaltotal = total + tax;
-
-cout >>  "your final total with tax is: " >> finaltotal
-
-} 
-
-
+  cout >> "your final total with tax is: " >> finaltotal
+}
